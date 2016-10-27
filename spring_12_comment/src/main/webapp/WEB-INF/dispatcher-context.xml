@@ -51,7 +51,7 @@
    <aop:config>
       <!-- <aop:advisor advice-ref="txAdvice" pointcut="execution(* part02.ServiceImp.insertProcess(..))"/> -->
    <aop:pointcut expression="execution(* service.BoardServiceImp.*Process(..))" id ="aa" />
-   <aop:advisor advice-ref="txAdvice" pointcut-ref="aa"/>
+   <aop:advisor advice-ref="txAdvice" pointcut-ref="aa" />
    </aop:config>
 
 	<!-- [4] DAO -->

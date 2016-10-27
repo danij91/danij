@@ -57,6 +57,9 @@ var urno='';
 									+ "," + error);
 						}
 					});
+					$('#updateReplyText').val('');
+					$('#modifyModel').removeClass('modifyShow');
+					$('#modifyModel').addClass('modifyHide');
 				});
 				
 				Handlebars.registerHelper("newDate", function(timeValue) {
@@ -148,15 +151,15 @@ var urno='';
 		$('li.time-label').empty();
 		$('li.time-label').append(
 				'<span class="bg-green"> Replies List'
-						+ '<small id="replycntSmall"> [' + size
-						+ '] </small></span>');
+						+ '<small id="replycntSmall"> [ ' + size
+						+ ' ] </small></span>');
 		$('.time_sub').remove();
 
 		$
 				.each(
 						res,
 						function(index, value) {
-							var source = "<li class = 'time_sub' id = '{{rno}}'><p>{{replyer}}</p><p>{{replytext}}</p><p>{{newDate regdate}}</p><p><button id='{{rno}}'>delete</bbuton><button id='{{rno}}'>update</button></p></li>";
+							var source = "<li class = 'time_sub' id = '{{rno}}'><p>{{replyer}}</p><p>{{replytext}}</p><p>{{newDate regdate}}</p><p><button id='{{rno}}'>delete</button> <button id='{{rno}}'>update</button></p></li>";
 							var template = Handlebars.compile(source);
 							$('.timeline').append(template(value));
 						});

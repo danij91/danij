@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- init-method:빈 객체를 컨테이너에 생성 및 초기화가 끝난 후 호출되는 메서드를 지정한다.
+	 destroy-method:빈 객체가 컨테이너에서 소멸되기 전에 호출되는 메서드를 지정한다. -->
+<bean id="svc" class="part11_listener.ServiceImp" init-method="before" destroy-method="end"></bean>
+
+</beans>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+	
+	<!-- Aspect-공통관심사항 빈 선언 -->
+	<bean id="common" class="part01_xml.AspectCommon" />
+
+	<!-- Target-핵심관심사항 빈 선언 -->
+	<bean id="svc" class="part01_xml.ServiceImp" />
+
+	<!-- Advice 설정 -->
+	<aop:config>
+		<aop:aspect ref="common">
+			<!-- pointcut="execution(접근제어자 package.class.method())" => 인자:0개 
+				 pointcut="execution(접근제어자 package.class.method(*))" => 인자:1개 
+				 pointcut="execution(접근제어자 package.class.method(*,*))" => 인자:2개 
+				 pointcut="execution(접근제어자 package.class.method(..))" => 인자:모든 -->
+			<!-- <aop:before method="comm1" pointcut="execution(* part01_xml.ServiceImp.prn1(..))" /> -->
+			<aop:pointcut expression="execution(* part01_xml.ServiceImp.prn1(..))" id="aa"/>
+			<aop:pointcut expression="execution(* part01_xml.ServiceImp.prn2(..))" id="bb"/>
+			<aop:pointcut expression="execution(* part01_xml.ServiceImp.prn3(..))" id="cc"/>
+			<aop:pointcut expression="execution(* part01_xml.ServiceImp.prn4(..))" id="dd"/>
+			<aop:pointcut expression="execution(* part01_xml.ServiceImp.prn5(..))" id="ee"/>
+			<aop:before method="comm1" pointcut-ref="aa"/>
+			<aop:after method="comm2" pointcut-ref="bb"/>
+			<aop:after-returning method="comm3" pointcut-ref="cc" returning="name"/>
+			<aop:after-throwing method="comm4" pointcut-ref="dd" throwing="ex"/>
+			<aop:around method="comm5" pointcut-ref="ee"/>
+		</aop:aspect>
+	</aop:config>
+</beans>

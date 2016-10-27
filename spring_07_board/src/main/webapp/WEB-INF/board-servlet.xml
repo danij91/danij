@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+	<!--[1] DataSource빈선언 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin://@127.0.0.1:1521:xe" />
+		<property name="username" value="hr" />
+		<property name="password" value="a1234" />
+		
+	</bean>
+
+	<!-- [2] SqlSessionFactoryBean 빈 선언 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath*:config/mapper.xml"/>
+	</bean>
+
+	<!-- [3] SqlSessionTemplate 빈 선언 -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" index="0" />
+	</bean>
+
+	<!-- [4] TransactionManager 빈 선언 :트랜잭션을 관리해주는 빈 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- [5] 선언적 트랜잭션(tx:advice) 선언 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*Process" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- [6]트랜잭션 설정 -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* service.Board*.*(..))" />
+	</aop:config>
+	
+	<!-- [7] DAO빈 선언 -->
+	<bean id="bdao" class="dao.BoardDaoImp">
+		<property name="sqlSession" ref="sqlSession"/>
+	</bean>
+	 
+	<!-- [8] Service 빈 선언 -->
+	<bean id="service" class="service.BoardServiceImp">
+		<property name="dao" ref="bdao"></property>
+	</bean>
+
+	<!-- [9] Controller 빈 선언-->
+	<bean class="controller.BoardController">
+		<property name="service" ref="service"/>
+	</bean>
+	
+	<!-- 파일업로드 시작 -->
+	<!-- 첨부 파일의 임시기억장치 경로 설정 -->
+	<bean id="uploadDirResource" class="org.springframework.core.io.FileSystemResource">
+		<!-- <constructor-arg value="c:/temp" /> -->
+		<constructor-arg value="./src/main/webapp/files/" />
+	</bean>
+	
+	<!-- 이건 내부참조이므로 아이디를 바꾸면 안된다 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="uploadTempDir" ref="uploadDirResource"/>
+	</bean>
+	<!-- 파일업로드 끝 -->
+	
+	<!-- 다운로드 뷰 빈 선언-->
+	<bean id="download" class="view.BoardDownLoadView">
+		<property name="dao" ref="bdao"></property>
+	</bean>
+	<!-- [10] View 빈 선언-->
+	
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="1" />
+	</bean>
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="2" />
+	</bean>
+</beans>

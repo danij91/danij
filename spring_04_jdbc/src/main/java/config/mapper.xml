@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mem">
+	<select id="all" resultType="part03.MemDTO">
+		select * from mem order by num desc
+	</select>
+	<insert id="ins" parameterType="part03.MemDTO">
+		insert into mem values(mem_num_seq.nextval,#{name,jdbcType=VARCHAR},#{age},#{loc,jdbcType=VARCHAR})
+	</insert>
+	<update id="upt" parameterType="part03.MemDTO">
+		update mem set name=#{name} where num=#{num}
+	</update>
+	<delete id="del" parameterType="int">
+	delete from mem where num=#{num}
+	</delete>
+	<select id="search" parameterType="int" resultType="part03.MemDTO">
+	select * from mem where num=#{num}
+	</select>
+	<select id="count" resultType="int">
+	select count(*) from mem
+	</select>
+</mapper> 

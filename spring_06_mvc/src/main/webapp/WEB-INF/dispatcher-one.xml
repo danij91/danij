@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!--[1] DataSource빈선언 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin://@127.0.0.1:1521:xe" />
+		<property name="username" value="hr" />
+		<property name="password" value="a1234" />
+	</bean>
+
+	<!-- [2] SqlSessionFactoryBean 빈 선언 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath*:part05/mapper.xml</value>
+				<value>classpath*:part06/mapper.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- [3] SqlSessionTemplate 빈 선언 -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" index="0" />
+	</bean>
+
+	<!-- [6] MemDaoImp 빈 선언 -->
+	<bean id="dao" class="part05.MemDaoImp">
+		<property name="sqlSession" ref="sqlSession" />
+	</bean>
+
+	<!-- [6-2] OrderDaoImp 빈 선언 -->
+	<bean id="OrderDao" class="part06.OrderDaoImp">
+		<property name="sqlSession" ref="sqlSession" />
+	</bean>
+
+	<!--[5] Controller 빈 선언 -->
+	<bean id="hello" class="part01.HelloController" />
+	<bean id="helloModel" class="part02.HelloModelController" />
+	<bean id="helloModelView" class="part03.HelloModelViewController" />
+	<bean id="helloCommand" class="part04.HelloCommandController" />
+	<bean id="memList" class="part05.MemListController">
+		<property name="dao" ref="dao" />
+	</bean>
+	<bean id="memInsert" class="part05.MemInsertController">
+		<property name="dao" ref="dao" />
+	</bean>
+	<bean id="orderInsert" class="part06.OrderInsertController">
+		<property name="dao" ref="OrderDao" />
+	</bean>
+	<bean id="orderList" class="part06.OrderListController">
+		<property name="dao" ref="OrderDao" />
+	</bean>
+
+	<!--[/WEB-INF/]주소 설정 view/part01/hello [.jsp]주소설정 -->
+	<!-- view 빈 선언 -->
+	<bean id="view"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+</beans>

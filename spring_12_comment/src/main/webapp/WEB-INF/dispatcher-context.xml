@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<mvc:annotation-driven></mvc:annotation-driven>
+
+	<!-- [1] DataSource빈 선언 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin://@127.0.0.1:1521:xe" />
+		<property name="username" value="hr" />
+		<property name="password" value="a1234" />
+	</bean>
+	<!-- [2] SqlSessionFactoryBean -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:config/boardMapper.xml</value>
+				<value>classpath:config/replyMapper.xml</value>
+			</list>
+		</property>
+		
+	</bean>
+	<!-- [3] SqlSessionTemplate -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	<bean id="transactionManager"
+      class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="dataSource" />
+   </bean>
+
+   <!-- [5] 선언적 트랜잭션 : <tx:advice>태그를 이용한 트랜잭션 처리 -->
+   <!-- [4] transactionManager를 참조 -->
+   <tx:advice id="txAdvice" transaction-manager="transactionManager">
+      <tx:attributes>
+      <!-- insertProcess메소드가 실행중 Exception이 발생할때 Rollback을 시킴 -->
+         <tx:method name="*Process" rollback-for="java.lang.Excetion" />
+      </tx:attributes>
+   </tx:advice>
+   
+   <!-- [6] 트랜잭션으로 처리할 메소드에 transactionManager 설정 -->
+   <!-- [5] txAdvice를 참조 -->
+   <aop:config>
+      <!-- <aop:advisor advice-ref="txAdvice" pointcut="execution(* part02.ServiceImp.insertProcess(..))"/> -->
+   <aop:pointcut expression="execution(* service.BoardServiceImp.*Process(..))" id ="aa" />
+   <aop:advisor advice-ref="txAdvice" pointcut-ref="aa"/>
+   </aop:config>
+
+	<!-- [4] DAO -->
+	<bean id="dao" class="dao.BoardDaoImp">
+		<property name="sqlSession" ref="sqlSession" />
+	</bean>
+	<!-- [5] Service -->
+	<bean id="service" class="service.BoardServiceImp">
+		<property name="dao" ref="dao" />
+	</bean>
+
+	<!-- Controller -->
+	<bean class="controller.BoardController">
+		<property name="service" ref="service" />
+	</bean>
+
+	<!-- viewResolver -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+</beans>

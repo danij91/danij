@@ -1,0 +1,1 @@
+select * from mem order by num desc
